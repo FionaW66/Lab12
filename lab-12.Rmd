@@ -1,7 +1,7 @@
 ---
 title: "Lab 12 - Smoking during pregnancy"
-author: "Insert your name here"
-date: "Insert date here"
+author: "Fiona Wang"
+date: "Apr 2 2025"
 output: github_document
 ---
 
@@ -13,15 +13,34 @@ library(tidymodels)
 library(openintro)
 ```
 
-### Exercise 1
+```{r load-data}
+data <- ncbirths
+```
 
-Remove this text, and add your answer for Exercise 1 here.
-Add code chunks as needed.
-Don't forget to label your code chunk.
-Do not use spaces in code chunk labels.
+```{r checktype}
+glimpse(data)
+```
+
+```{r outlier}
+boxplot.stats(data$fage)$out
+boxplot.stats(data$mage)$out
+boxplot.stats(data$weeks)$out
+boxplot.stats(data$visits)$out
+boxplot.stats(data$gained)$out
+boxplot.stats(data$weight)$out
+```
+
+Looking at this tibble, there are a couple numerical variables: father's age, mother's age, length of pregnancy in weeks, number of hospital visits during pregnancy, weight gained by mother during pregnancy in pounds, and weight of the baby at birth in pounds. The others are all categorical. For the numerical variables, all of them have outliers. 
+
+### Exercise 1
+There are 1000 cases in this dataset. THe cases are the information on birth record in the state of North Carolina from 2004. 
 
 ### Exercise 2
+```{r filter}
+ncbirths_white <- data %>% 
+  filter(whitemom == "white")
+ncbirths_white %>% 
+  summarise(mean_weight = mean(weight, na.rm = TRUE))
+```
 
-...
-
-Add exercise headings as needed.
+The mean weights of the white babies is 7.25 pounds. 

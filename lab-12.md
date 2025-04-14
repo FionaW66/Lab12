@@ -101,3 +101,69 @@ ncbirths_white %>%
     ## 1        7.25
 
 The mean weights of the white babies is 7.25 pounds.
+
+### Exercise 3
+
+I think it meets the criteria necessary to conduct simulation-based
+inference. It is a large enough sample size, so we could simulate
+samples easily. The observations are independent, I think.
+
+### Exercise 4
+
+``` r
+set.seed(1232)
+boot_df <- data %>% 
+  specify(respons = weight) %>% 
+  hypothesize(null = "point", mu = 7.43) %>% 
+  generate(reps = 10000, type  = "bootstrap") %>% 
+  calculate(stat = "mean")
+glimpse(boot_df)
+```
+
+    ## Rows: 10,000
+    ## Columns: 2
+    ## $ replicate <int> 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 1…
+    ## $ stat      <dbl> 7.53365, 7.47945, 7.37724, 7.37932, 7.50480, 7.38918, 7.5552…
+
+Now, let’s plot the graph.
+
+``` r
+ggplot(data = boot_df, mapping = aes(x = stat)) +
+  geom_histogram(binwidth = 0.001) +
+  labs(title = "Null Distribution") +
+  geom_vline(xintercept = 7.43, color = "red")
+```
+
+![](lab-12_files/figure-gfm/plotdistr-1.png)<!-- -->
+
+It seems to be pretty normally distributed, and centered around 7.43.
+
+``` r
+boot_df %>% 
+  summarize(lower = quantile(stat, .025),
+            uppter = quantile(stat, .975))
+```
+
+    ## # A tibble: 1 × 2
+    ##   lower uppter
+    ##   <dbl>  <dbl>
+    ## 1  7.34   7.52
+
+``` r
+boot_df %>% 
+  summarize(p_value = mean(abs(stat - 7.43) >= abs(7.25 - 7.43)))
+```
+
+    ## # A tibble: 1 × 1
+    ##   p_value
+    ##     <dbl>
+    ## 1  0.0002
+
+It seems like the p-value is 0.0002. There is very few instances in the
+null distribution that we see a difference as large as the one we
+observed in the current dataset. The null’s mean is 7.43, the observed
+mean is 7.25, which is a 0.18 difference. In our 10,000 bootstrap
+results, there was not one instance where they had a bigger than 0.18
+difference. So, it is very unlikely to see an instance as extreme as
+ours. Thus, we conclude that the weight of White babies in NC in 2004 is
+significantly lighter than the White babies in 1995.

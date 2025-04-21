@@ -112,7 +112,7 @@ samples easily. The observations are independent, I think.
 
 ``` r
 set.seed(1232)
-boot_df <- data %>% 
+boot_df <- ncbirths_white %>% 
   specify(respons = weight) %>% 
   hypothesize(null = "point", mu = 7.43) %>% 
   generate(reps = 10000, type  = "bootstrap") %>% 
@@ -123,7 +123,7 @@ glimpse(boot_df)
     ## Rows: 10,000
     ## Columns: 2
     ## $ replicate <int> 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 1…
-    ## $ stat      <dbl> 7.53365, 7.47945, 7.37724, 7.37932, 7.50480, 7.38918, 7.5552…
+    ## $ stat      <dbl> 7.400042, 7.356289, 7.462143, 7.377507, 7.431695, 7.368221, …
 
 Now, let’s plot the graph.
 
@@ -136,7 +136,8 @@ ggplot(data = boot_df, mapping = aes(x = stat)) +
 
 ![](lab-12_files/figure-gfm/plotdistr-1.png)<!-- -->
 
-It seems to be pretty normally distributed, and centered around 7.43.
+It seems to be pretty normally distributed (or a little left skewed),
+and centered around 7.43.
 
 ``` r
 boot_df %>% 
@@ -147,7 +148,7 @@ boot_df %>%
     ## # A tibble: 1 × 2
     ##   lower uppter
     ##   <dbl>  <dbl>
-    ## 1  7.34   7.52
+    ## 1  7.32   7.53
 
 ``` r
 boot_df %>% 
@@ -157,13 +158,49 @@ boot_df %>%
     ## # A tibble: 1 × 1
     ##   p_value
     ##     <dbl>
-    ## 1  0.0002
+    ## 1  0.0007
 
-It seems like the p-value is 0.0002. There is very few instances in the
+It seems like the p-value is 0.0007. There is very few instances in the
 null distribution that we see a difference as large as the one we
 observed in the current dataset. The null’s mean is 7.43, the observed
 mean is 7.25, which is a 0.18 difference. In our 10,000 bootstrap
-results, there was not one instance where they had a bigger than 0.18
+results, there were few instances where they had a bigger than 0.18
 difference. So, it is very unlikely to see an instance as extreme as
 ours. Thus, we conclude that the weight of White babies in NC in 2004 is
 significantly lighter than the White babies in 1995.
+
+### Exercise 5
+
+``` r
+boxplot(data$weight ~ data$habit, data = data,
+        col = c("skyblue", "lightgreen"))
+```
+
+![](lab-12_files/figure-gfm/boxplot-1.png)<!-- -->
+
+From the boxplot, we see that the weight of the babies whose mothers
+were nonsmokers on average was heavier than that of the babies whose
+mothers were smokers.
+
+### Exercise 6
+
+``` r
+ncbirths_clean <- data %>% 
+  filter(!is.na(habit), !is.na(weight))
+```
+
+It seems like there is only one missing value.
+
+### Exercise 7
+
+``` r
+ncbirths_clean %>% 
+  group_by(habit) %>% 
+  summarize(mean_weight = mean(weight))
+```
+
+    ## # A tibble: 2 × 2
+    ##   habit     mean_weight
+    ##   <fct>           <dbl>
+    ## 1 nonsmoker        7.14
+    ## 2 smoker           6.83

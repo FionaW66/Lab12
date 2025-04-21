@@ -204,3 +204,79 @@ ncbirths_clean %>%
     ##   <fct>           <dbl>
     ## 1 nonsmoker        7.14
     ## 2 smoker           6.83
+
+### Exercise 8
+
+Write the hypotheses testing to see if the difference is significant.
+H0: the average weight of babies born to smoking mothers and the average
+weight of babies born to non-smoking mothers are not significantly
+different. HA: the average weight of babies born to smoking mothers are
+significantly lighter than babies born to non-smoking mothers.
+
+### Exercise 9
+
+``` r
+t.test(weight ~ habit, data = ncbirths_clean)
+```
+
+    ## 
+    ##  Welch Two Sample t-test
+    ## 
+    ## data:  weight by habit
+    ## t = 2.359, df = 171.32, p-value = 0.01945
+    ## alternative hypothesis: true difference in means between group nonsmoker and group smoker is not equal to 0
+    ## 95 percent confidence interval:
+    ##  0.05151165 0.57957328
+    ## sample estimates:
+    ## mean in group nonsmoker    mean in group smoker 
+    ##                7.144273                6.828730
+
+According to the t-test, the p-value is 0.019 \< 0.05. This means that
+it is very unlikely to observe a data as extreme as ours, so the two
+groups significantly differ from each other in the average weight of the
+babies. The average weight of babies of non-smoker mothers is
+significantly heavier than the average weight of babies of smoker
+mothers.
+
+### Exercise 10
+
+The t-test already gives us the 95% CI around the difference: \[.052,
+.580\].
+
+``` r
+set.seed(123)
+boot_df2 <- ncbirths_clean %>%
+  specify(weight ~ habit) %>%
+  generate(reps = 10000, type = "bootstrap") %>%
+  calculate(stat = "diff in means", order = c("nonsmoker", "smoker"))
+ci <- boot_df2 %>%
+  get_confidence_interval(level = 0.95, type = "percentile")
+print(ci)
+```
+
+    ## # A tibble: 1 × 2
+    ##   lower_ci upper_ci
+    ##      <dbl>    <dbl>
+    ## 1   0.0591    0.578
+
+From the bootstrap the confidence interval is a little different from
+what the t-test gave me. \[.059, .580\].
+
+### Exercise 11
+
+From my experience, I would use median cut-offs because that’s what I
+did when determining low and high SES groups. We can divide mothers
+equally into two groups.
+
+``` r
+median_age <- median(data$mage, na.rm = TRUE)
+median_age
+```
+
+    ## [1] 27
+
+The median age of mothers is 27, and that’s the cutoff if I were to
+determine it. For mothers who are younger than 27, they are younger
+mothers, for mothers who are 27 or older, they are mature mothers.
+
+### Exercise 12
